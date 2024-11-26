@@ -33,17 +33,3 @@ jobs:
     - name: Push Docker Image
       run: docker push mubinahmed/user-management:latest
       
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-
-    - name: Terraform Init and Apply
-      run: |
-        terraform init
-        terraform apply -auto-approve
