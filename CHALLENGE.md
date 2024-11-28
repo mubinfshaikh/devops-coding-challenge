@@ -21,7 +21,6 @@ Table of Contents
 
 Overview
 
-This challenge implements a scalable and automated deployment of a User Management Application using Kubernetes on AWS EKS. The repository includes Kubernetes manifest files, Helm charts, Terraform scripts, and a CI/CD pipeline using GitHub Actions to deploy the application seamlessly.
 Tools and Technologies
 
     AWS CLI: To interact with AWS services and create EKS clusters.
@@ -33,114 +32,94 @@ Tools and Technologies
     GitHub Actions: For CI/CD pipeline automation.
 
 Setup Instructions
-Environment Preparation
-
-    Update and install prerequisites:
-
+Steps:
 sudo apt-get update
 sudo apt-get install -y apt-transport-https software-properties-common
 
-Install the necessary tools:
-
-    AWS CLI:
-
+Install AWS CLI-
 curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
 sudo apt install unzip
 unzip awscliv2.zip
 sudo ./aws/install -i /usr/local/aws-cli -b /usr/local/bin --update
 
-Helm:
-
+Install HELM
 curl https://baltocdn.com/helm/signing.asc | gpg --dearmor | sudo tee /usr/share/keyrings/helm.gpg > /dev/null
 sudo apt-get install apt-transport-https --yes
 echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main" | sudo tee /etc/apt/sources.list.d/helm-stable-debian.list
 sudo apt-get update
 sudo apt-get install helm
 
-Kubectl:
-
+install kubectl
 curl -o kubectl https://amazon-eks.s3.us-west-2.amazonaws.com/1.19.6/2021-01-05/bin/linux/amd64/kubectl
 chmod +x ./kubectl
 sudo mv ./kubectl /usr/local/bin
 kubectl version --short --client
 
-Docker:
+install Docker
+# Add Docker's official GPG key:
+sudo apt-get update
+sudo apt-get install ca-certificates curl
+sudo install -m 0755 -d /etc/apt/keyrings
+sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+sudo chmod a+r /etc/apt/keyrings/docker.asc
 
-        sudo apt-get update
-        sudo apt-get install ca-certificates curl
-        sudo install -m 0755 -d /etc/apt/keyrings
-        sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-        sudo chmod a+r /etc/apt/keyrings/docker.asc
-        echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
-        sudo apt-get update
-        sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin -y
+# Add the repository to Apt sources:
+echo \
+  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+sudo apt-get update
+sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin -y
 
-EKS Cluster Creation
+-------------------------
+![Alt text](https://mubin-crewmeister-challenge.s3.ap-south-1.amazonaws.com/eks-cluster-creation.png)
 
-    Create the EKS Cluster:
+After Creating EKS Cluster
 
-    aws eks --region ap-south-1 update-kubeconfig --name crewmeister-mubin-challenge
-    mv ~/.kube/config ~/.kube/config.bk
-    /usr/local/bin/aws eks update-kubeconfig --region ap-south-1 --name crewmeister-mubin-challenge
+aws eks --region ap-south-1 update-kubeconfig --name crewmeister-mubin-challenge
 
-Namespace Creation
+mv ~/.kube/config ~/.kube/config.bk
+/usr/local/bin/aws eks update-kubeconfig --region ap-south-1  --name crewmeister-mubin-challenge
 
-Create separate namespaces for database and application pods:
+-------------------------
+Create namespaces for running pods into their specific apps, here is used mysql and development namespace
+
 
 kubectl create namespace development
 kubectl create namespace database
 
-Application Deployment
-MySQL Pod
+-------------------------
 
-    The MySQL pod is deployed using the Kubernetes manifest files located in the kubernetes-mysql directory.
-        MySQL Manifest Files
-    Namespace: database
+Created mysql pod of saving user management data
 
-User Management Application
+manifest files are in *kubernetes-mysql* directory 
+https://github.com/mubinfshaikh/devops-coding-challenge/tree/main/kubernetes-mysql
 
-    The Java-based user-management application is deployed using the Helm chart located in the charts directory.
-        Helm Chart
-    Namespace: development
+![Alt text]([https://mubin-crewmeister-challenge.s3.ap-south-1.amazonaws.com/mysql-db-pod.png))
 
-CI/CD Pipeline
 
-A CI/CD pipeline is configured using GitHub Actions to automate the application build, push Docker images to Docker Hub, and deploy to the EKS cluster using Terraform and Helm.
+create user-management pod for java user app 
+Helm chart created in *charts* directory
+https://github.com/mubinfshaikh/devops-coding-challenge/tree/main/charts
 
-    Pipeline file: pipeline.yml
-    It uses:
-        Ubuntu runner: For building Docker images and performing deployments.
-        Self-hosted runner: Configured on an EC2 instance to run Helm and Terraform commands.
+![Screenshot 2024-11-28 215013](https://github.com/user-attachments/assets/c9186ec8-385c-49b8-a91a-764c5cc0107a)
 
-Docker Image
+![image](https://github.com/user-attachments/assets/0c55c2c2-ecc6-412a-bb1d-287a98d8ec09)
 
-The Docker image for the User Management Application is built and pushed to Docker Hub:
+![image](https://github.com/user-attachments/assets/fb7bef2f-93d4-4804-853c-7263b93241ac)
 
-    Docker Hub Repository: mubinahmed/user-management
+-----------------------------------
 
-Helm Charts
+Link to Docker hub repository : https://hub.docker.com/repository/docker/mubinahmed/user-management/general
 
-The Helm charts are stored in the charts directory and include the necessary templates to deploy the user-management application:
+-----------------------------------
 
-    Helm Charts
+Gitactions pipline / jobs created : used ubuntu runner + self-hosted runner i.e my ec2 where my helm and terraform is installed
+https://github.com/mubinfshaikh/devops-coding-challenge/blob/main/.github/workflows/pipeline.yml
 
-Self-Hosted Runner
+----------------------------------
+self-hosted runner
 
-A self-hosted GitHub Actions runner is configured on an EC2 instance for executing Helm and Terraform commands efficiently.
-Screenshots
-EKS Cluster
+![image](https://github.com/user-attachments/assets/14115e2e-c248-42f2-807e-c33c14d7000c)
 
-EKS Cluster Creation
-MySQL Pod
-
-MySQL Pod
-CI/CD Pipeline and Self-Hosted Runner
-
-Pipeline Runner
-Repository Links
-
-    Docker Hub Repository: mubinahmed/user-management
-    MySQL Manifest Files: kubernetes-mysql
-    Helm Charts: charts
-    GitHub Actions Pipeline: pipeline.yml
-
+----------------------------------
