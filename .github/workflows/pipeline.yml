@@ -1,0 +1,79 @@
+name: CICD Pipeline
+
+on:
+  push:
+    branches:
+      - feature/local-kubernetes-deployment
+
+jobs:
+  build:
+    runs-on: ubuntu-latest  # Ubuntu runner for the build job
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: 17
+        distribution: temurin
+
+    - name: Build and Test
+      run: mvn clean package -DskipTests
+
+    - name: Build Docker Image
+      run: docker build -t mubinahmed/user-management:latest .
+
+    - name: Login to DockerHub
+      uses: docker/login-action@v2
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_PASSWORD }}
+
+    - name: Push Docker Image
+      run: docker push mubinahmed/user-management:latest
+
+  deploy:
+    runs-on: self-hosted  # Self-hosted runner for deployment
+
+    needs: build  # Ensures deploy runs after build is complete
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set KUBECONFIG environment variable
+      run: |
+        export KUBECONFIG=/home/ubuntu/.kube/config
+        echo "KUBECONFIG set to $KUBECONFIG"
+      shell: bash
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+
+    # Use the outputs from the build job (passed from the build job as inputs)
+    - name: Terraform Init and Apply
+      run: |
+        cd terraform
+        terraform init
+        terraform plan 
+        terraform apply -auto-approve=true
+
+  status:
+    runs-on: self-hosted  # Self-hosted runner for status checks
+    
+    needs: deploy  # Ensures status runs after deploy is complete
+
+    steps:
+    - name: Set KUBECONFIG environment variable
+      run: |
+        export KUBECONFIG=/home/ubuntu/.kube/config
+        echo "KUBECONFIG set to $KUBECONFIG"
+      shell: bash
+
+    - name: Check Kubernetes Pods Status
+      run: |
+        echo "Checking pod statuses in the development namespace..."
+        kubectl get pods -n development
+      shell: bash

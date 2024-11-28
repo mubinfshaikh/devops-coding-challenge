@@ -1,0 +1,9 @@
+apiVersion: v2
+name: user-management-new
+description: >
+  A Helm chart for managing crewmeister users.
+  This chart provides resources and configurations to deploy and manage the user management service effectively within a Kubernetes cluster.
+
+  Created by the author, Mubinahmed.
+version: 3.0.0
+appVersion: "1.0"
