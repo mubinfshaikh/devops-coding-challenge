@@ -123,3 +123,9 @@ self-hosted runner
 ![image](https://github.com/user-attachments/assets/14115e2e-c248-42f2-807e-c33c14d7000c)
 
 ----------------------------------
+
+Git Action Pipline link and image:
+https://github.com/mubinfshaikh/devops-coding-challenge/actions/runs/12071561744
+
+![image](https://github.com/user-attachments/assets/9b6fe128-9082-42c0-bc4f-45c55df13341)
+
