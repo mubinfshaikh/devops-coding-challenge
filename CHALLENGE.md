@@ -95,7 +95,7 @@ Created mysql pod of saving user management data
 manifest files are in *kubernetes-mysql* directory 
 https://github.com/mubinfshaikh/devops-coding-challenge/tree/main/kubernetes-mysql
 
-![Alt text]([https://mubin-crewmeister-challenge.s3.ap-south-1.amazonaws.com/mysql-db-pod.png))
+![mysql-db-pod](https://github.com/user-attachments/assets/131672eb-cd6c-4baf-86f8-b6b365b4e0a8)
 
 
 create user-management pod for java user app 
