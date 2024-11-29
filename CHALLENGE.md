@@ -114,7 +114,7 @@ Link to Docker hub repository : https://hub.docker.com/repository/docker/mubinah
 
 -----------------------------------
 
-Gitactions pipline / jobs created : used ubuntu runner + self-hosted runner i.e my ec2 where my helm and terraform is installed
+Gitactions pipeline / jobs created : used ubuntu runner + self-hosted runner i.e my ec2 where my helm and terraform is installed
 https://github.com/mubinfshaikh/devops-coding-challenge/blob/main/.github/workflows/pipeline.yml
 
 ----------------------------------
